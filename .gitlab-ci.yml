@@ -1,6 +1,6 @@
 stages: [validate, deploy]
 validate:
-  tags: [homelab]
+  tags: [validation]
   rules:
     - if: '$CI_PROJECT_VISIBILITY == "private" && $CI_COMMIT_REF_PROTECTED == "true"'
   script:
@@ -21,6 +21,6 @@ deploy:
     LAB_HOSTNAME: postgres.example.test
     IMAGE: postgres:17.6-alpine
   script:
-    - export HOMELAB_STATE_ID="gitlab-$CI_PROJECT_ID"
+    - export HOMELAB_STATE_ID="${HOMELAB_STATE_ID:-gitlab-$CI_PROJECT_ID}"
     - cd terraform
     - ../ci/deploy.sh
