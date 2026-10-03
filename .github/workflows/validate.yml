@@ -19,7 +19,7 @@ jobs:
       - name: Check scripts, Compose and Terraform without Proxmox credentials
         run: |
           set -euo pipefail
-          shellcheck scripts/*.sh terraform/scripts/*.sh
+          shellcheck ci/*.sh scripts/*.sh terraform/scripts/*.sh
           ./scripts/setup.sh
           docker compose config --quiet
           terraform -chdir=terraform fmt -check -recursive
