@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+secrets/
+.terraform/
+*.tfstate*
+*.tfvars
+*.tfplan
+*.pem
+*.key
+.DS_Store
+__pycache__/
+backups/
