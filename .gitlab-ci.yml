@@ -1,0 +1,26 @@
+stages: [validate, deploy]
+validate:
+  tags: [homelab]
+  rules:
+    - if: '$CI_PROJECT_VISIBILITY == "private" && $CI_COMMIT_REF_PROTECTED == "true"'
+  script:
+    - shellcheck scripts/*.sh terraform/scripts/*.sh
+    - terraform -chdir=terraform init -backend=false -input=false -lockfile=readonly
+    - terraform -chdir=terraform validate
+deploy:
+  stage: deploy
+  tags: [homelab]
+  resource_group: proxmox-deployment
+  environment: homelab
+  rules:
+    - if: '$CI_PROJECT_VISIBILITY == "private" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true" && $DEPLOY_ENABLED == "true"'
+      when: manual
+    - when: never
+  variables:
+    HOMELAB_ACTION: plan
+    LAB_HOSTNAME: postgres.example.test
+    IMAGE: postgres:17.6-alpine
+  script:
+    - export HOMELAB_STATE_ID="gitlab-$CI_PROJECT_ID"
+    - cd terraform
+    - ../ci/deploy.sh

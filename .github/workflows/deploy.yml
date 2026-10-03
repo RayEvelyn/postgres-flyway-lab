@@ -1,0 +1,39 @@
+name: Deploy Proxmox database and migrations
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        type: choice
+        options: [plan, provision, deploy]
+        default: plan
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: proxmox-deployment
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: ${{ github.event.repository.private && vars.DEPLOY_ENABLED == 'true' && github.ref_name == github.event.repository.default_branch }}
+    runs-on: [self-hosted, linux, homelab]
+    environment: homelab
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Provision or deploy using persistent state and protected runtime credentials
+        working-directory: terraform
+        env:
+          HOMELAB_ACTION: ${{ inputs.action }}
+          HOMELAB_STATE_ID: github-${{ github.repository_id }}
+          TF_STATE_ROOT: ${{ vars.TF_STATE_ROOT }}
+          HOMELAB_TFVARS_JSON: ${{ vars.HOMELAB_TFVARS_JSON }}
+          PROXMOX_VE_ENDPOINT: ${{ vars.PROXMOX_VE_ENDPOINT }}
+          PROXMOX_VE_API_TOKEN: ${{ secrets.PROXMOX_VE_API_TOKEN }}
+          PROXMOX_CA_PEM: ${{ secrets.PROXMOX_CA_PEM }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          LAB_HOSTNAME: postgres.example.test
+          IMAGE: postgres:17.6-alpine
+        run: ../ci/deploy.sh

@@ -1,0 +1,15 @@
+{
+  "vm_name": "postgres-flyway-lab",
+  "node_name": "pve",
+  "vm_id": 280,
+  "template_id": 9000,
+  "datastore_id": "local-lvm",
+  "bridge": "vmbr0",
+  "ip_cidr": "192.0.2.80/24",
+  "gateway": "192.0.2.1",
+  "dns_servers": [
+    "192.0.2.1"
+  ],
+  "cores": 2,
+  "memory_mb": 4096
+}

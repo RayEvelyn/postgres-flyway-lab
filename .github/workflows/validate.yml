@@ -1,0 +1,35 @@
+name: Validate code and migrations
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd
+        with:
+          terraform_version: 1.16.4
+          terraform_wrapper: false
+      - name: Check scripts, Compose and Terraform without Proxmox credentials
+        run: |
+          set -euo pipefail
+          shellcheck scripts/*.sh terraform/scripts/*.sh
+          ./scripts/setup.sh
+          docker compose config --quiet
+          terraform -chdir=terraform fmt -check -recursive
+          terraform -chdir=terraform init -backend=false -input=false -lockfile=readonly
+          terraform -chdir=terraform validate
+      - name: Exercise disposable PostgreSQL and real Flyway migrations
+        run: |
+          set -euo pipefail
+          docker compose up -d --wait database
+          ./scripts/verify.sh
+      - name: Remove only this job's disposable containers and volume
+        if: always()
+        run: docker compose down --volumes

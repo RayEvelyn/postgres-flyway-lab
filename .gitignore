@@ -11,3 +11,5 @@ secrets/
 .DS_Store
 __pycache__/
 backups/
+*.tfvars.json
+.ci-runtime/
