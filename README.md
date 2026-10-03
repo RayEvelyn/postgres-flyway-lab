@@ -1,5 +1,7 @@
 # PostgreSQL DDL and Flyway: make database changes reviewable
 
+Start with [GitOps, the bootstrap order, and why the repos are separate](docs/START-HERE.md).
+
 A small hands-on lab for learning why SQL schema changes belong in version control, how Flyway applies them in order, and where its guarantees stop.
 
 ## Why this matters before your application grows
